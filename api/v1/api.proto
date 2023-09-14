@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package api.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/pirosiki197/emoine/pkg/gen/api/v1;apiv1";
+
+service APIService {
+  rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
+  rpc GetEvents(GetEventsRequest) returns (GetEventsResponse);
+
+  rpc SendComment(SendCommentRequest) returns (SendCommentResponse);
+  rpc GetComments(GetCommentsRequest) returns (GetCommentsResponse);
+
+  rpc ConnectToStream(ConnectToStreamRequest) returns (stream ConnectToStreamResponse);
+}
+
+message CreateEventRequest {
+  string title = 1;
+  google.protobuf.Timestamp start_at = 2;
+  google.protobuf.Timestamp end_at = 3;
+}
+
+message CreateEventResponse {
+  string id = 1;
+}
+
+message GetEventsRequest {
+  string id = 1;
+}
+
+message GetEventsResponse {
+  repeated Event events = 1;
+}
+
+message SendCommentRequest {
+  string text = 1;
+}
+
+message SendCommentResponse {
+  string id = 1;
+  string user_id = 2;
+  string event_id = 3;
+}
+
+message GetCommentsRequest {
+  string event_id = 1;
+}
+
+message GetCommentsResponse {
+  repeated Comment comments = 1;
+}
+
+message ConnectToStreamRequest {
+  string event_id = 1;
+}
+
+message ConnectToStreamResponse {
+  oneof event_or_comment {
+    Event event = 1;
+    Comment comment = 2;
+  }
+}
+
+message Event {
+  string id = 1;
+  string title = 2;
+  google.protobuf.Timestamp start_at = 3;
+  google.protobuf.Timestamp end_at = 4;
+}
+
+message Comment {
+  string id = 1;
+  string user_id = 2;
+  string event_id = 3;
+  string text = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
