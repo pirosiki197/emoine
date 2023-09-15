@@ -26,9 +26,7 @@ message CreateEventResponse {
   string id = 1;
 }
 
-message GetEventsRequest {
-  string id = 1;
-}
+message GetEventsRequest {}
 
 message GetEventsResponse {
   repeated Event events = 1;
