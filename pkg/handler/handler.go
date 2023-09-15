@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"connectrpc.com/connect"
+	"github.com/bufbuild/protovalidate-go"
 	"github.com/google/uuid"
 	apiv1 "github.com/pirosiki197/emoine/pkg/gen/api/v1"
 	"github.com/pirosiki197/emoine/pkg/model"
@@ -13,12 +14,19 @@ import (
 )
 
 type handler struct {
-	repo Repository
+	repo      Repository
+	validator *protovalidate.Validator
 }
 
 func NewHandlre(repo Repository) *handler {
+	v, err := protovalidate.New()
+	if err != nil {
+		panic(err)
+	}
+
 	return &handler{
-		repo: repo,
+		repo:      repo,
+		validator: v,
 	}
 }
 
@@ -26,6 +34,10 @@ func (s *handler) CreateEvent(
 	ctx context.Context,
 	req *connect.Request[apiv1.CreateEventRequest],
 ) (*connect.Response[apiv1.CreateEventResponse], error) {
+	if err := s.validator.Validate(req.Msg); err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+
 	e := &model.Event{
 		ID:      uuid.New(),
 		Title:   req.Msg.Title,
