@@ -85,7 +85,22 @@ func (h *handler) GetComments(
 	ctx context.Context,
 	req *connect.Request[apiv1.GetCommentsRequest],
 ) (*connect.Response[apiv1.GetCommentsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+	if err := h.validator.Validate(req.Msg); err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+
+	comments, err := h.repo.GetComments(ctx, req.Msg.EventId)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	res := connect.NewResponse(&apiv1.GetCommentsResponse{
+		Comments: lo.Map(comments, func(c model.Comment, _ int) *apiv1.Comment {
+			return pbconv.FromCommentModel(&c)
+		}),
+	})
+
+	return res, nil
 }
 
 func (h *handler) ConnectToStream(
