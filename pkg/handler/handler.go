@@ -6,6 +6,9 @@ import (
 
 	"connectrpc.com/connect"
 	apiv1 "github.com/pirosiki197/emoine/pkg/gen/api/v1"
+	"github.com/pirosiki197/emoine/pkg/model"
+	"github.com/pirosiki197/emoine/pkg/pbconv"
+	"github.com/samber/lo"
 )
 
 type handler struct {
@@ -29,7 +32,18 @@ func (s *handler) GetEvents(
 	ctx context.Context,
 	req *connect.Request[apiv1.GetEventsRequest],
 ) (*connect.Response[apiv1.GetEventsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+	events, err := s.repo.GetEvents(ctx)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	res := connect.NewResponse(&apiv1.GetEventsResponse{
+		Events: lo.Map(events, func(e model.Event, _ int) *apiv1.Event {
+			return pbconv.FromEventModel(&e)
+		}),
+	})
+
+	return res, nil
 }
 
 func (s *handler) SendComment(
