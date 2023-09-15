@@ -14,3 +14,13 @@ func FromEventModel(e *model.Event) *apiv1.Event {
 		EndAt:   timestamppb.New(e.EndAt),
 	}
 }
+
+func FromCommentModel(c *model.Comment) *apiv1.Comment {
+	return &apiv1.Comment{
+		Id:        c.ID.String(),
+		UserId:    c.UserID,
+		EventId:   c.EventID.String(),
+		Text:      c.Text,
+		CreatedAt: timestamppb.New(c.CreatedAt),
+	}
+}
