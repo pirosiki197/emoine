@@ -8,10 +8,14 @@ import (
 	apiv1 "github.com/pirosiki197/emoine/pkg/gen/api/v1"
 )
 
-type handler struct{}
+type handler struct {
+	repo Repository
+}
 
-func NewHandlre() *handler {
-	return &handler{}
+func NewHandlre(repo Repository) *handler {
+	return &handler{
+		repo: repo,
+	}
 }
 
 func (s *handler) CreateEvent(
