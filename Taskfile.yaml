@@ -1,0 +1,15 @@
+version: '3'
+
+tasks:
+  lint:
+    cmds:
+      - buf lint
+      - buf format -w
+  generate:
+    cmds:
+      - buf generate
+  git-history:
+    aliases:
+      - hist
+    cmds:
+      - git log --oneline --graph --decorate --all
