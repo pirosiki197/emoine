@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/bufbuild/protovalidate-go"
@@ -74,11 +75,32 @@ func (h *handler) GetEvents(
 	return res, nil
 }
 
+// TODO: stream処理を実装する
 func (h *handler) SendComment(
 	ctx context.Context,
 	req *connect.Request[apiv1.SendCommentRequest],
 ) (*connect.Response[apiv1.SendCommentResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+	if err := h.validator.Validate(req.Msg); err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+
+	c := &model.Comment{
+		ID:        uuid.New(),
+		UserID:    req.Msg.UserId,
+		EventID:   uuid.MustParse(req.Msg.EventId),
+		Text:      req.Msg.Text,
+		CreatedAt: time.Now(),
+	}
+
+	if err := h.repo.SendComment(ctx, c); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	res := connect.NewResponse(&apiv1.SendCommentResponse{
+		Id: c.ID.String(),
+	})
+
+	return res, nil
 }
 
 func (h *handler) GetComments(
