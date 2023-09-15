@@ -34,7 +34,7 @@ func (h *handler) CreateEvent(
 	ctx context.Context,
 	req *connect.Request[apiv1.CreateEventRequest],
 ) (*connect.Response[apiv1.CreateEventResponse], error) {
-	if err := s.validator.Validate(req.Msg); err != nil {
+	if err := h.validator.Validate(req.Msg); err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
 
