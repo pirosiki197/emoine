@@ -111,7 +111,7 @@ func (h *handler) GetComments(
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
 
-	comments, err := h.repo.GetComments(ctx, req.Msg.EventId)
+	comments, err := h.repo.GetEventComments(ctx, req.Msg.EventId)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
