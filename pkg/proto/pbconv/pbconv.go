@@ -1,8 +1,8 @@
 package pbconv
 
 import (
-	apiv1 "github.com/pirosiki197/emoine/pkg/gen/api/v1"
 	"github.com/pirosiki197/emoine/pkg/model"
+	apiv1 "github.com/pirosiki197/emoine/pkg/proto/api/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/pirosiki197/emoine/pkg/gen/api/v1/apiv1connect"
 	"github.com/pirosiki197/emoine/pkg/handler"
+	"github.com/pirosiki197/emoine/pkg/proto/api/v1/apiv1connect"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )
