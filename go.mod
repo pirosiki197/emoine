@@ -3,6 +3,7 @@ module github.com/pirosiki197/emoine
 go 1.21.1
 
 require (
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20230914171853-63dfe56cc2c4.1
 	connectrpc.com/connect v1.11.1
 	github.com/google/uuid v1.3.1
 	github.com/samber/lo v1.38.1
