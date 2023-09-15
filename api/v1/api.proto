@@ -34,12 +34,12 @@ message GetEventsResponse {
 
 message SendCommentRequest {
   string text = 1;
+  string user_id = 2;
+  string event_id = 3;
 }
 
 message SendCommentResponse {
   string id = 1;
-  string user_id = 2;
-  string event_id = 3;
 }
 
 message GetCommentsRequest {
