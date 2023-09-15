@@ -16,7 +16,7 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		AddSource: true,
 	}))
-	handler := handler.NewHandlre()
+	handler := handler.NewHandlre(nil)
 	mux := http.NewServeMux()
 	mux.Handle(apiv1connect.NewAPIServiceHandler(handler))
 	logger.Info("server started on :8080")
