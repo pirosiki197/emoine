@@ -8,9 +8,9 @@ import (
 	"connectrpc.com/connect"
 	"github.com/bufbuild/protovalidate-go"
 	"github.com/google/uuid"
-	apiv1 "github.com/pirosiki197/emoine/pkg/gen/api/v1"
 	"github.com/pirosiki197/emoine/pkg/model"
-	"github.com/pirosiki197/emoine/pkg/pbconv"
+	apiv1 "github.com/pirosiki197/emoine/pkg/proto/api/v1"
+	"github.com/pirosiki197/emoine/pkg/proto/pbconv"
 	"github.com/samber/lo"
 )
 
