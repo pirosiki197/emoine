@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package api.v1;
 
+import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/pirosiki197/emoine/pkg/gen/api/v1;apiv1";
@@ -17,13 +18,13 @@ service APIService {
 }
 
 message CreateEventRequest {
-  string title = 1;
+  string title = 1 [(buf.validate.field).string.min_len = 1];
   google.protobuf.Timestamp start_at = 2;
   google.protobuf.Timestamp end_at = 3;
 }
 
 message CreateEventResponse {
-  string id = 1;
+  string id = 1 [(buf.validate.field).string.uuid = true];
 }
 
 message GetEventsRequest {}
@@ -33,17 +34,17 @@ message GetEventsResponse {
 }
 
 message SendCommentRequest {
-  string text = 1;
-  string user_id = 2;
-  string event_id = 3;
+  string text = 1 [(buf.validate.field).string.min_len = 1];
+  string user_id = 2 [(buf.validate.field).string.min_len = 1];
+  string event_id = 3 [(buf.validate.field).string.uuid = true];
 }
 
 message SendCommentResponse {
-  string id = 1;
+  string id = 1 [(buf.validate.field).string.uuid = true];
 }
 
 message GetCommentsRequest {
-  string event_id = 1;
+  string event_id = 1 [(buf.validate.field).string.uuid = true];
 }
 
 message GetCommentsResponse {
@@ -51,7 +52,7 @@ message GetCommentsResponse {
 }
 
 message ConnectToStreamRequest {
-  string event_id = 1;
+  string event_id = 1 [(buf.validate.field).string.uuid = true];
 }
 
 message ConnectToStreamResponse {
@@ -62,16 +63,16 @@ message ConnectToStreamResponse {
 }
 
 message Event {
-  string id = 1;
-  string title = 2;
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  string title = 2 [(buf.validate.field).string.min_len = 1];
   google.protobuf.Timestamp start_at = 3;
   google.protobuf.Timestamp end_at = 4;
 }
 
 message Comment {
-  string id = 1;
-  string user_id = 2;
-  string event_id = 3;
-  string text = 4;
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  string user_id = 2 [(buf.validate.field).string.min_len = 1];
+  string event_id = 3 [(buf.validate.field).string.uuid = true];
+  string text = 4 [(buf.validate.field).string.min_len = 1];
   google.protobuf.Timestamp created_at = 5;
 }
