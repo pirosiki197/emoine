@@ -22,7 +22,7 @@ func NewHandlre(repo Repository) *handler {
 	}
 }
 
-func (s *handler) CreateEvent(
+func (h *handler) CreateEvent(
 	ctx context.Context,
 	req *connect.Request[apiv1.CreateEventRequest],
 ) (*connect.Response[apiv1.CreateEventResponse], error) {
@@ -33,7 +33,7 @@ func (s *handler) CreateEvent(
 		EndAt:   req.Msg.EndAt.AsTime(),
 	}
 
-	if err := s.repo.CreateEvent(ctx, e); err != nil {
+	if err := h.repo.CreateEvent(ctx, e); err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -44,11 +44,11 @@ func (s *handler) CreateEvent(
 	return res, nil
 }
 
-func (s *handler) GetEvents(
+func (h *handler) GetEvents(
 	ctx context.Context,
 	req *connect.Request[apiv1.GetEventsRequest],
 ) (*connect.Response[apiv1.GetEventsResponse], error) {
-	events, err := s.repo.GetEvents(ctx)
+	events, err := h.repo.GetEvents(ctx)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -62,21 +62,21 @@ func (s *handler) GetEvents(
 	return res, nil
 }
 
-func (s *handler) SendComment(
+func (h *handler) SendComment(
 	ctx context.Context,
 	req *connect.Request[apiv1.SendCommentRequest],
 ) (*connect.Response[apiv1.SendCommentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
 }
 
-func (s *handler) GetComments(
+func (h *handler) GetComments(
 	ctx context.Context,
 	req *connect.Request[apiv1.GetCommentsRequest],
 ) (*connect.Response[apiv1.GetCommentsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
 }
 
-func (s *handler) ConnectToStream(
+func (h *handler) ConnectToStream(
 	ctx context.Context,
 	req *connect.Request[apiv1.ConnectToStreamRequest],
 	stream *connect.ServerStream[apiv1.ConnectToStreamResponse],
