@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"connectrpc.com/connect"
@@ -130,5 +129,48 @@ func (h *handler) ConnectToStream(
 	req *connect.Request[apiv1.ConnectToStreamRequest],
 	stream *connect.ServerStream[apiv1.ConnectToStreamResponse],
 ) error {
-	return connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+	if err := h.validator.Validate(req.Msg); err != nil {
+		return connect.NewError(connect.CodeInvalidArgument, err)
+	}
+
+	e, err := h.repo.GetEvent(ctx, uuid.MustParse(req.Msg.EventId))
+	if err != nil {
+		return connect.NewError(connect.CodeInternal, err)
+	}
+	if e == nil {
+		return connect.NewError(connect.CodeNotFound, nil)
+	}
+
+	stream.Send(&apiv1.ConnectToStreamResponse{
+		EventOrComment: &apiv1.ConnectToStreamResponse_Event{
+			Event: pbconv.FromEventModel(e),
+		},
+	})
+
+	ch := connectToStream(ctx)
+
+	for {
+		select {
+		case res := <-ch:
+			stream.Send(res)
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+// TODO: stream処理を実装する
+func connectToStream(ctx context.Context) <-chan *apiv1.ConnectToStreamResponse {
+	ch := make(chan *apiv1.ConnectToStreamResponse)
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	return ch
 }
