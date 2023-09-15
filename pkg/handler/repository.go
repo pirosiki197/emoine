@@ -11,5 +11,5 @@ type Repository interface {
 	GetEvents(ctx context.Context) ([]model.Event, error)
 
 	SendComment(ctx context.Context, comment *model.Comment) error
-	GetComments(ctx context.Context, eventID string) ([]model.Comment, error)
+	GetEventComments(ctx context.Context, eventID string) ([]model.Comment, error)
 }
