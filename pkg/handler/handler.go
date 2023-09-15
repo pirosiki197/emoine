@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"connectrpc.com/connect"
+	"github.com/google/uuid"
 	apiv1 "github.com/pirosiki197/emoine/pkg/gen/api/v1"
 	"github.com/pirosiki197/emoine/pkg/model"
 	"github.com/pirosiki197/emoine/pkg/pbconv"
@@ -25,7 +26,22 @@ func (s *handler) CreateEvent(
 	ctx context.Context,
 	req *connect.Request[apiv1.CreateEventRequest],
 ) (*connect.Response[apiv1.CreateEventResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+	e := &model.Event{
+		ID:      uuid.New(),
+		Title:   req.Msg.Title,
+		StartAt: req.Msg.StartAt.AsTime(),
+		EndAt:   req.Msg.EndAt.AsTime(),
+	}
+
+	if err := s.repo.CreateEvent(ctx, e); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	res := connect.NewResponse(&apiv1.CreateEventResponse{
+		Id: e.ID.String(),
+	})
+
+	return res, nil
 }
 
 func (s *handler) GetEvents(
