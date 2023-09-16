@@ -91,7 +91,7 @@ func (h *handler) SendComment(
 		CreatedAt: time.Now(),
 	}
 
-	if err := h.repo.SendComment(ctx, c); err != nil {
+	if err := h.repo.CreateComment(ctx, c); err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
@@ -133,7 +133,7 @@ func (h *handler) ConnectToStream(
 		return connect.NewError(connect.CodeInvalidArgument, err)
 	}
 
-	e, err := h.repo.GetEvent(ctx, uuid.MustParse(req.Msg.EventId))
+	e, err := h.repo.GetEvent(ctx, req.Msg.EventId)
 	if err != nil {
 		return connect.NewError(connect.CodeInternal, err)
 	}
@@ -147,7 +147,7 @@ func (h *handler) ConnectToStream(
 		},
 	})
 
-	ch := connectToStream(ctx)
+	ch := connectToStream(ctx, e.ID)
 
 	for {
 		select {
@@ -160,7 +160,7 @@ func (h *handler) ConnectToStream(
 }
 
 // TODO: stream処理を実装する
-func connectToStream(ctx context.Context) <-chan *apiv1.ConnectToStreamResponse {
+func connectToStream(ctx context.Context, eventID uuid.UUID) <-chan *apiv1.ConnectToStreamResponse {
 	ch := make(chan *apiv1.ConnectToStreamResponse)
 
 	go func() {
