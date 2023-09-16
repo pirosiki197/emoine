@@ -1,6 +1,20 @@
 version: '3'
 
 tasks:
+  up:
+    cmds:
+      - docker compose up -d
+  down:
+    cmds:
+      - docker compose down
+  logs:
+    aliases:
+      - log
+    cmds:
+      - docker compose logs -f
+  db:
+    cmds:
+      - docker compose exec db mysql -u root -pexample
   lint:
     cmds:
       - buf lint
