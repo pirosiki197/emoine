@@ -11,8 +11,8 @@ require (
 	github.com/samber/lo v1.38.1
 	github.com/uptrace/bun v1.1.16
 	github.com/uptrace/bun/dialect/mysqldialect v1.1.16
-	github.com/uptrace/bun/dialect/sqlitedialect v1.1.15
-	github.com/uptrace/bun/driver/sqliteshim v1.1.15
+	github.com/uptrace/bun/dialect/sqlitedialect v1.1.16
+	github.com/uptrace/bun/driver/sqliteshim v1.1.16
 	golang.org/x/net v0.15.0
 	google.golang.org/protobuf v1.31.0
 )
