@@ -6,6 +6,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.server.rule=Host(`emoine.trapti.tech`)"
+#      - "traefik.http.routers.server.middlewares=forward-auth"
 
   db:
     image: mysql:latest
@@ -16,9 +17,31 @@ services:
 
   traefik:
     image: traefik:v2.10
-    command: --api.insecure=true --providers.docker --providers.docker.exposedByDefault=false
+    command: --api.insecure=true --providers.docker --providers.docker.exposedByDefault=false --accesslog
     ports:
       - 80:80
       - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  
+#  forward-auth:
+#    image: ghcr.io/jordemort/traefik-forward-auth:latest
+#    environment:
+#      - DEFAULT_PROVIDER=generic-oauth
+#      - INSECURE_COOKIE=true
+#      - COOKIE_DOMAIN=trapti.tech
+#      - AUTH_HOST=forward-auth.trapti.tech
+#      - PROVIDERS_GENERIC_OAUTH_AUTH_URL=https://q.trap.jp/api/v3/oauth2/authorize
+#      - PROVIDERS_GENERIC_OAUTH_TOKEN_URL=https://q.trap.jp/api/v3/oauth2/token
+#      - PROVIDERS_GENERIC_OAUTH_USER_URL=https://q.trap.jp/api/v3/users/me
+#      - PROVIDERS_GENERIC_OAUTH_CLIENT_ID=${CLIENT_ID}
+#      - PROVIDERS_GENERIC_OAUTH_CLIENT_SECRET=${CLIENT_SECRET}
+#      - PROVIDERS_GENERIC_OAUTH_SCOPE=read
+#      - SECRET=${SECRET}
+#      - USER_ID_PATH=name
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.forward-auth.rule=Host(`forward-auth.trapti.tech`)"
+#      - "traefik.http.middlewares.forward-auth.forwardauth.address=http://forward-auth:4181"
+#      - "traefik.http.middlewares.forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
+#      - "traefik.http.services.forward-auth.loadbalancer.server.port=4181"
