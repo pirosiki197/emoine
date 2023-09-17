@@ -81,7 +81,6 @@ func (h *handler) GetEvents(
 	return res, nil
 }
 
-// TODO: stream処理を実装する
 func (h *handler) SendComment(
 	ctx context.Context,
 	req *connect.Request[apiv1.SendCommentRequest],
