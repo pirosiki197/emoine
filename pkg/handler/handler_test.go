@@ -83,3 +83,79 @@ func TestCreateEvent(t *testing.T) {
 		})
 	}
 }
+
+func TestStream(t *testing.T) {
+	server := setUpServer()
+	t.Cleanup(server.Close)
+
+	client := apiv1connect.NewAPIServiceClient(server.Client(), server.URL)
+	ctx := context.Background()
+
+	// コメントを受け取るイベントを作成
+	res, err := client.CreateEvent(ctx, connect.NewRequest(&apiv1.CreateEventRequest{
+		Title: "test",
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	id := res.Msg.Id
+	// コメントを受け取らないイベントを作成
+	res, err = client.CreateEvent(ctx, connect.NewRequest(&apiv1.CreateEventRequest{
+		Title: "this event will not received",
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	anotherID := res.Msg.Id
+
+	t.Run("receive", func(t *testing.T) {
+		t.Parallel()
+		defer server.CloseClientConnections()
+		stream, err := client.ConnectToStream(ctx, connect.NewRequest(&apiv1.ConnectToStreamRequest{
+			EventId: id,
+		}))
+		if err != nil {
+			t.Logf("error: %+v", err)
+			t.Fatal(err)
+		}
+
+		go func() {
+			time.Sleep(3 * time.Second)
+			server.CloseClientConnections()
+		}()
+
+		for stream.Receive() {
+			if c := stream.Msg().GetComment(); c != nil {
+				if c.Text != "test" {
+					t.Errorf("got %s, want %s", c.Text, "test")
+				}
+			}
+		}
+	})
+
+	t.Run("send", func(t *testing.T) {
+		t.Parallel()
+		// wait for stream
+		time.Sleep(1 * time.Second)
+		// Textがtestのコメントのみが受け取られる
+		comments := []*apiv1.SendCommentRequest{
+			{
+				EventId: id,
+				UserId:  "test",
+				Text:    "test",
+			},
+			{
+				EventId: anotherID,
+				UserId:  "test",
+				Text:    "will not received",
+			},
+		}
+
+		for _, c := range comments {
+			_, err := client.SendComment(ctx, connect.NewRequest(c))
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+	})
+}
