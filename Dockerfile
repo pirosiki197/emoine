@@ -9,4 +9,5 @@ FROM debian:bullseye-slim
 WORKDIR /app
 COPY --from=builder /server/app .
 RUN ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+EXPOSE 8080
 CMD [ "./app" ]
