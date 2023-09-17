@@ -1,7 +1,10 @@
 .git
 .github/
 api/
+cmd/client/
 
 .dockerignore
 Dockerfile
+compose.yaml
+buf.*
 Taskfile.yaml

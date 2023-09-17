@@ -22,7 +22,7 @@ var (
 func main() {
 	scanner = bufio.NewScanner(os.Stdin)
 	httpClient = http.DefaultClient
-	client := apiv1connect.NewAPIServiceClient(httpClient, "http://localhost:8080")
+	client := apiv1connect.NewAPIServiceClient(httpClient, "http://emoine.trapti.tech")
 
 	fmt.Println("connected to server")
 
@@ -51,6 +51,7 @@ func main() {
 		case 5:
 			connectToStream(client)
 		case 6:
+			fmt.Println("bye")
 			return
 		default:
 			fmt.Println("invalid number")
@@ -69,7 +70,8 @@ func createEvent(c apiv1connect.APIServiceClient) {
 		StartAt: timestamppb.Now(),
 	}))
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return
 	}
 
 	fmt.Println("created event")
@@ -79,7 +81,8 @@ func createEvent(c apiv1connect.APIServiceClient) {
 func getEvents(c apiv1connect.APIServiceClient) {
 	res, err := c.GetEvents(context.Background(), connect.NewRequest(&apiv1.GetEventsRequest{}))
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return
 	}
 
 	fmt.Println("events:")
@@ -104,7 +107,8 @@ func sendComment(c apiv1connect.APIServiceClient) {
 		Text:    text,
 	}))
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return
 	}
 
 	fmt.Println("sent comment")
@@ -120,7 +124,8 @@ func getComments(c apiv1connect.APIServiceClient) {
 		EventId: eventID,
 	}))
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return
 	}
 
 	fmt.Println("comments:")
@@ -135,11 +140,13 @@ func connectToStream(c apiv1connect.APIServiceClient) {
 	fmt.Scan(&eventID)
 
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	stream, err := c.ConnectToStream(ctx, connect.NewRequest(&apiv1.ConnectToStreamRequest{
 		EventId: eventID,
 	}))
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return
 	}
 
 	fmt.Println("connected to stream")
@@ -168,5 +175,6 @@ func connectToStream(c apiv1connect.APIServiceClient) {
 	}
 	if err := stream.Err(); err != nil {
 		log.Println(err)
+		return
 	}
 }
