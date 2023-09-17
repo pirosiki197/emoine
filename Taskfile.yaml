@@ -7,6 +7,9 @@ tasks:
   down:
     cmds:
       - docker compose down
+  build:
+    cmds:
+      - docker compose up -d --build
   logs:
     aliases:
       - log

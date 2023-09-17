@@ -49,9 +49,16 @@ func newDB() *bun.DB {
 		Loc:       jst,
 		ParseTime: true,
 	}
-	sqldb, err := sql.Open("mysql", conf.FormatDSN())
-	if err != nil {
-		panic(err)
+	var sqldb *sql.DB
+	for i := 0; i < 10; i++ {
+		time.Sleep(2 * time.Second)
+		sqldb, _ = sql.Open("mysql", conf.FormatDSN())
+		if err := sqldb.Ping(); err == nil {
+			break
+		}
+		if i == 9 {
+			panic(err)
+		}
 	}
 	db := bun.NewDB(sqldb, mysqldialect.New())
 
