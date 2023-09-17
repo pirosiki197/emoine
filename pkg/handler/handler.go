@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"connectrpc.com/connect"
@@ -16,6 +17,8 @@ import (
 type handler struct {
 	repo      Repository
 	validator *protovalidate.Validator
+
+	sm *streamManager
 }
 
 func NewHandlre(repo Repository) *handler {
@@ -27,6 +30,10 @@ func NewHandlre(repo Repository) *handler {
 	return &handler{
 		repo:      repo,
 		validator: v,
+		sm: &streamManager{
+			clients: []*client{},
+			mu:      sync.Mutex{},
+		},
 	}
 }
 
@@ -95,6 +102,8 @@ func (h *handler) SendComment(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
+	h.sm.sendComment(c)
+
 	res := connect.NewResponse(&apiv1.SendCommentResponse{
 		Id: c.ID.String(),
 	})
@@ -147,30 +156,19 @@ func (h *handler) ConnectToStream(
 		},
 	})
 
-	ch := connectToStream(ctx, e.ID)
+	client := h.sm.connectToStream(e.ID)
+	defer h.sm.disconnectFromStream(client)
 
 	for {
 		select {
-		case res := <-ch:
-			stream.Send(res)
+		case msg := <-client.receive():
+			stream.Send(&apiv1.ConnectToStreamResponse{
+				EventOrComment: &apiv1.ConnectToStreamResponse_Comment{
+					Comment: msg.comment,
+				},
+			})
 		case <-ctx.Done():
 			return nil
 		}
 	}
-}
-
-// TODO: stream処理を実装する
-func connectToStream(ctx context.Context, eventID uuid.UUID) <-chan *apiv1.ConnectToStreamResponse {
-	ch := make(chan *apiv1.ConnectToStreamResponse)
-
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
-
-	return ch
 }
