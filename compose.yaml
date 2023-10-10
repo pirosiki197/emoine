@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - 8080:8080
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.server.rule=Host(`emoine.trapti.tech`)"
@@ -14,6 +16,12 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: example
       MYSQL_DATABASE: emoine
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
 
   traefik:
     image: traefik:v2.10

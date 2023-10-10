@@ -1,6 +1,7 @@
 .git
 .github/
 api/
+frontend/
 cmd/client/
 
 .dockerignore
