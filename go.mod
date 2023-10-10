@@ -8,6 +8,7 @@ require (
 	github.com/bufbuild/protovalidate-go v0.3.2
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/google/uuid v1.3.1
+	github.com/rs/cors v1.10.1
 	github.com/samber/lo v1.38.1
 	github.com/uptrace/bun v1.1.16
 	github.com/uptrace/bun/dialect/mysqldialect v1.1.16

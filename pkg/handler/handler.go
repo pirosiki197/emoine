@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -42,6 +43,7 @@ func (h *handler) CreateEvent(
 	req *connect.Request[apiv1.CreateEventRequest],
 ) (*connect.Response[apiv1.CreateEventResponse], error) {
 	if err := h.validator.Validate(req.Msg); err != nil {
+		slog.Error(err.Error(), slog.Any("req", req.Msg))
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
 
