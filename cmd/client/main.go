@@ -85,6 +85,7 @@ func getEvents(c apiv1connect.APIServiceClient) {
 		return
 	}
 
+	fmt.Printf("total: %d\n", len(res.Msg.Events))
 	fmt.Println("events:")
 	for _, e := range res.Msg.Events {
 		fmt.Printf("%s: %s\n", e.Id, e.Title)
