@@ -3,15 +3,15 @@ package handler
 import (
 	"context"
 	"log/slog"
-	"sync"
 	"time"
 
 	"connectrpc.com/connect"
 	"github.com/bufbuild/protovalidate-go"
 	"github.com/google/uuid"
-	"github.com/pirosiki197/emoine/pkg/model"
+	"github.com/pirosiki197/emoine/pkg/domain"
 	apiv1 "github.com/pirosiki197/emoine/pkg/proto/api/v1"
 	"github.com/pirosiki197/emoine/pkg/proto/pbconv"
+	"github.com/pirosiki197/emoine/pkg/pubsub"
 	"github.com/samber/lo"
 )
 
@@ -28,13 +28,15 @@ func NewHandlre(repo Repository) *handler {
 		panic(err)
 	}
 
+	sm := &streamManager{
+		ps: pubsub.NewPubsub(),
+	}
+	go sm.run(context.Background())
+
 	return &handler{
 		repo:      repo,
 		validator: v,
-		sm: &streamManager{
-			clients: []*client{},
-			mu:      sync.Mutex{},
-		},
+		sm:        sm,
 	}
 }
 
@@ -47,7 +49,7 @@ func (h *handler) CreateEvent(
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
 
-	e := &model.Event{
+	e := &domain.Event{
 		ID:      uuid.New(),
 		Title:   req.Msg.Title,
 		StartAt: req.Msg.StartAt.AsTime(),
@@ -75,7 +77,7 @@ func (h *handler) GetEvents(
 	}
 
 	res := connect.NewResponse(&apiv1.GetEventsResponse{
-		Events: lo.Map(events, func(e model.Event, _ int) *apiv1.Event {
+		Events: lo.Map(events, func(e domain.Event, _ int) *apiv1.Event {
 			return pbconv.FromEventModel(&e)
 		}),
 	})
@@ -91,7 +93,7 @@ func (h *handler) SendComment(
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
 
-	c := &model.Comment{
+	c := &domain.Comment{
 		ID:        uuid.New(),
 		UserID:    req.Msg.UserId,
 		EventID:   uuid.MustParse(req.Msg.EventId),
@@ -103,7 +105,9 @@ func (h *handler) SendComment(
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
 
-	h.sm.sendComment(c)
+	if err := h.sm.sendComment(c); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
 
 	res := connect.NewResponse(&apiv1.SendCommentResponse{
 		Id: c.ID.String(),
@@ -126,7 +130,7 @@ func (h *handler) GetComments(
 	}
 
 	res := connect.NewResponse(&apiv1.GetCommentsResponse{
-		Comments: lo.Map(comments, func(c model.Comment, _ int) *apiv1.Comment {
+		Comments: lo.Map(comments, func(c domain.Comment, _ int) *apiv1.Comment {
 			return pbconv.FromCommentModel(&c)
 		}),
 	})
