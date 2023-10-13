@@ -23,6 +23,12 @@ services:
     ports:
       - 8081:8080
 
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - 6379:6379
+
   traefik:
     image: traefik:v2.10
     command: --api.insecure=true --providers.docker --providers.docker.exposedByDefault=false --accesslog

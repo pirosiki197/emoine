@@ -10,6 +10,9 @@ tasks:
   build:
     cmds:
       - docker compose up -d --build
+  redis:
+    cmds:
+      - docker compose up -d redis
   logs:
     aliases:
       - log
@@ -22,11 +25,3 @@ tasks:
     cmds:
       - buf lint
       - buf format -w
-  generate:
-    cmds:
-      - buf generate
-  git-history:
-    aliases:
-      - hist
-    cmds:
-      - git log --oneline --graph --decorate --all
