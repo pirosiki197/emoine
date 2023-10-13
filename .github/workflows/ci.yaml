@@ -11,5 +11,7 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: "1.21"
+      - name: Run redis container
+        run: docker compose up -d redis
       - name: Run Tests
         run: go test ./...
