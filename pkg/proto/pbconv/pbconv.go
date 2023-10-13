@@ -1,13 +1,13 @@
 package pbconv
 
 import (
-	"github.com/pirosiki197/emoine/pkg/model"
+	"github.com/pirosiki197/emoine/pkg/domain"
 	apiv1 "github.com/pirosiki197/emoine/pkg/proto/api/v1"
 	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func FromEventModel(e *model.Event) *apiv1.Event {
+func FromEventModel(e *domain.Event) *apiv1.Event {
 	return &apiv1.Event{
 		Id:      e.ID.String(),
 		Title:   e.Title,
@@ -16,7 +16,7 @@ func FromEventModel(e *model.Event) *apiv1.Event {
 	}
 }
 
-func FromCommentModel(c *model.Comment) *apiv1.Comment {
+func FromCommentModel(c *domain.Comment) *apiv1.Comment {
 	return &apiv1.Comment{
 		Id:        c.ID.String(),
 		UserId:    c.UserID,
