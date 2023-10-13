@@ -3,8 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - 8080:8080
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.server.rule=Host(`emoine.trapti.tech`)"
