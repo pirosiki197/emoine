@@ -1,6 +1,6 @@
 module github.com/pirosiki197/emoine
 
-go 1.21.1
+go 1.21.5
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20230914171853-63dfe56cc2c4.1
