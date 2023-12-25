@@ -1,4 +1,4 @@
-package pubsub_test
+package pubsub
 
 import (
 	"context"
@@ -7,11 +7,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pirosiki197/emoine/pkg/domain"
-	"github.com/pirosiki197/emoine/pkg/pubsub"
 )
 
 func TestPubSub_Comment(t *testing.T) {
-	p := pubsub.NewPubsub()
+	p := NewPubsub()
 	err := p.PublishComment(context.Background(), &domain.Comment{
 		ID:        uuid.New(),
 		UserID:    "user-id",
@@ -25,7 +24,7 @@ func TestPubSub_Comment(t *testing.T) {
 }
 
 func TestPubSub_Comment_Concurrency(t *testing.T) {
-	p := pubsub.NewPubsub()
+	p := NewPubsub()
 
 	t.Run("publish", func(t *testing.T) {
 		t.Parallel()

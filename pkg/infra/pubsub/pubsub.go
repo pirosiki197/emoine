@@ -52,10 +52,8 @@ func (p *Pubsub) SubscribeComment(ctx context.Context) (sub <-chan domain.Messag
 
 	// start goroutine to stop receiving comments
 	go func() {
-		select {
-		case <-ctx.Done():
-			stop()
-		}
+		<-ctx.Done()
+		stop()
 	}()
 	// start goroutine to receive comments
 	go func() {
