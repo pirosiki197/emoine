@@ -7,8 +7,8 @@ import (
 	"os"
 
 	"github.com/pirosiki197/emoine/pkg/handler"
-	"github.com/pirosiki197/emoine/pkg/proto/api/v1/apiv1connect"
-	"github.com/pirosiki197/emoine/pkg/repository"
+	"github.com/pirosiki197/emoine/pkg/infra/proto/api/v1/apiv1connect"
+	"github.com/pirosiki197/emoine/pkg/infra/repository"
 	"github.com/rs/cors"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -20,7 +20,7 @@ func main() {
 	}))
 	slog.SetDefault(logger)
 
-	repo := repository.NewRepository()
+	repo := repository.NewRepository(nil)
 	handler := handler.NewHandlre(repo)
 
 	mux := http.NewServeMux()

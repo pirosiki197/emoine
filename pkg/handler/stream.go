@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pirosiki197/emoine/pkg/domain"
-	apiv1 "github.com/pirosiki197/emoine/pkg/proto/api/v1"
-	"github.com/pirosiki197/emoine/pkg/proto/pbconv"
+	apiv1 "github.com/pirosiki197/emoine/pkg/infra/proto/api/v1"
+	"github.com/pirosiki197/emoine/pkg/infra/proto/pbconv"
 )
 
 type streamManager struct {

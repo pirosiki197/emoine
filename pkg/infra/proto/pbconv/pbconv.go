@@ -2,7 +2,7 @@ package pbconv
 
 import (
 	"github.com/pirosiki197/emoine/pkg/domain"
-	apiv1 "github.com/pirosiki197/emoine/pkg/proto/api/v1"
+	apiv1 "github.com/pirosiki197/emoine/pkg/infra/proto/api/v1"
 	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

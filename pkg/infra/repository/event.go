@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/pirosiki197/emoine/pkg/domain"
-	"github.com/pirosiki197/emoine/pkg/repository/dbmodel"
+	"github.com/pirosiki197/emoine/pkg/infra/repository/dbmodel"
 	"github.com/samber/lo"
 	"github.com/uptrace/bun"
 )

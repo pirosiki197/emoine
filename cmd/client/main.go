@@ -9,8 +9,8 @@ import (
 	"os"
 
 	"connectrpc.com/connect"
-	apiv1 "github.com/pirosiki197/emoine/pkg/proto/api/v1"
-	"github.com/pirosiki197/emoine/pkg/proto/api/v1/apiv1connect"
+	apiv1 "github.com/pirosiki197/emoine/pkg/infra/proto/api/v1"
+	"github.com/pirosiki197/emoine/pkg/infra/proto/api/v1/apiv1connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

@@ -9,20 +9,20 @@ import (
 	"github.com/bufbuild/protovalidate-go"
 	"github.com/google/uuid"
 	"github.com/pirosiki197/emoine/pkg/domain"
-	apiv1 "github.com/pirosiki197/emoine/pkg/proto/api/v1"
-	"github.com/pirosiki197/emoine/pkg/proto/pbconv"
-	"github.com/pirosiki197/emoine/pkg/pubsub"
+	apiv1 "github.com/pirosiki197/emoine/pkg/infra/proto/api/v1"
+	"github.com/pirosiki197/emoine/pkg/infra/proto/pbconv"
+	"github.com/pirosiki197/emoine/pkg/infra/pubsub"
 	"github.com/samber/lo"
 )
 
 type handler struct {
-	repo      Repository
+	repo      domain.Repository
 	validator *protovalidate.Validator
 
 	sm *streamManager
 }
 
-func NewHandlre(repo Repository) *handler {
+func NewHandlre(repo domain.Repository) *handler {
 	v, err := protovalidate.New()
 	if err != nil {
 		panic(err)

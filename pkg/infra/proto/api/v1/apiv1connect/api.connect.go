@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "github.com/pirosiki197/emoine/pkg/proto/api/v1"
+	v1 "github.com/pirosiki197/emoine/pkg/infra/proto/api/v1"
 	http "net/http"
 	strings "strings"
 )
