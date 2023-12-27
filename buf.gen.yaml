@@ -1,8 +1,14 @@
 version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: github.com/pirosiki197/emoine/pkg/infra/proto
+    except:
+      - buf.build/bufbuild/protovalidate
 plugins:
-  - plugin: go
+  - plugin: buf.build/protocolbuffers/go
     out: pkg/infra/proto
     opt: paths=source_relative
-  - plugin: connect-go
+  - plugin: buf.build/connectrpc/go
     out: pkg/infra/proto
     opt: paths=source_relative

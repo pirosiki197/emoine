@@ -18,7 +18,7 @@ import (
 // generated with a version of connect newer than the one compiled into your binary. You can fix the
 // problem by either regenerating this code with an older version of connect or updating the connect
 // version compiled into your binary.
-const _ = connect.IsAtLeastVersion0_1_0
+const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// APIServiceName is the fully-qualified name of the APIService service.
@@ -46,6 +46,16 @@ const (
 	APIServiceConnectToStreamProcedure = "/api.v1.APIService/ConnectToStream"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	aPIServiceServiceDescriptor               = v1.File_api_v1_api_proto.Services().ByName("APIService")
+	aPIServiceCreateEventMethodDescriptor     = aPIServiceServiceDescriptor.Methods().ByName("CreateEvent")
+	aPIServiceGetEventsMethodDescriptor       = aPIServiceServiceDescriptor.Methods().ByName("GetEvents")
+	aPIServiceSendCommentMethodDescriptor     = aPIServiceServiceDescriptor.Methods().ByName("SendComment")
+	aPIServiceGetCommentsMethodDescriptor     = aPIServiceServiceDescriptor.Methods().ByName("GetComments")
+	aPIServiceConnectToStreamMethodDescriptor = aPIServiceServiceDescriptor.Methods().ByName("ConnectToStream")
+)
+
 // APIServiceClient is a client for the api.v1.APIService service.
 type APIServiceClient interface {
 	CreateEvent(context.Context, *connect.Request[v1.CreateEventRequest]) (*connect.Response[v1.CreateEventResponse], error)
@@ -68,27 +78,32 @@ func NewAPIServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 		createEvent: connect.NewClient[v1.CreateEventRequest, v1.CreateEventResponse](
 			httpClient,
 			baseURL+APIServiceCreateEventProcedure,
-			opts...,
+			connect.WithSchema(aPIServiceCreateEventMethodDescriptor),
+			connect.WithClientOptions(opts...),
 		),
 		getEvents: connect.NewClient[v1.GetEventsRequest, v1.GetEventsResponse](
 			httpClient,
 			baseURL+APIServiceGetEventsProcedure,
-			opts...,
+			connect.WithSchema(aPIServiceGetEventsMethodDescriptor),
+			connect.WithClientOptions(opts...),
 		),
 		sendComment: connect.NewClient[v1.SendCommentRequest, v1.SendCommentResponse](
 			httpClient,
 			baseURL+APIServiceSendCommentProcedure,
-			opts...,
+			connect.WithSchema(aPIServiceSendCommentMethodDescriptor),
+			connect.WithClientOptions(opts...),
 		),
 		getComments: connect.NewClient[v1.GetCommentsRequest, v1.GetCommentsResponse](
 			httpClient,
 			baseURL+APIServiceGetCommentsProcedure,
-			opts...,
+			connect.WithSchema(aPIServiceGetCommentsMethodDescriptor),
+			connect.WithClientOptions(opts...),
 		),
 		connectToStream: connect.NewClient[v1.ConnectToStreamRequest, v1.ConnectToStreamResponse](
 			httpClient,
 			baseURL+APIServiceConnectToStreamProcedure,
-			opts...,
+			connect.WithSchema(aPIServiceConnectToStreamMethodDescriptor),
+			connect.WithClientOptions(opts...),
 		),
 	}
 }
@@ -145,27 +160,32 @@ func NewAPIServiceHandler(svc APIServiceHandler, opts ...connect.HandlerOption) 
 	aPIServiceCreateEventHandler := connect.NewUnaryHandler(
 		APIServiceCreateEventProcedure,
 		svc.CreateEvent,
-		opts...,
+		connect.WithSchema(aPIServiceCreateEventMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
 	)
 	aPIServiceGetEventsHandler := connect.NewUnaryHandler(
 		APIServiceGetEventsProcedure,
 		svc.GetEvents,
-		opts...,
+		connect.WithSchema(aPIServiceGetEventsMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
 	)
 	aPIServiceSendCommentHandler := connect.NewUnaryHandler(
 		APIServiceSendCommentProcedure,
 		svc.SendComment,
-		opts...,
+		connect.WithSchema(aPIServiceSendCommentMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
 	)
 	aPIServiceGetCommentsHandler := connect.NewUnaryHandler(
 		APIServiceGetCommentsProcedure,
 		svc.GetComments,
-		opts...,
+		connect.WithSchema(aPIServiceGetCommentsMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
 	)
 	aPIServiceConnectToStreamHandler := connect.NewServerStreamHandler(
 		APIServiceConnectToStreamProcedure,
 		svc.ConnectToStream,
-		opts...,
+		connect.WithSchema(aPIServiceConnectToStreamMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
 	)
 	return "/api.v1.APIService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {

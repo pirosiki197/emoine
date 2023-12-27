@@ -5,8 +5,6 @@ package api.v1;
 import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/pirosiki197/emoine/pkg/proto/api/v1;apiv1";
-
 service APIService {
   rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
   rpc GetEvents(GetEventsRequest) returns (GetEventsResponse);
