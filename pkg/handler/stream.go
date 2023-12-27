@@ -13,7 +13,7 @@ import (
 )
 
 type streamManager struct {
-	ps      domain.PubSub
+	cps     domain.PubSub[*domain.Comment]
 	clients []*client
 
 	mu sync.Mutex
@@ -21,7 +21,7 @@ type streamManager struct {
 
 func (sm *streamManager) run(ctx context.Context) {
 	// 今はコメントのみだけど増えるかも
-	sub, stop := sm.ps.SubscribeComment(ctx)
+	sub, stop := sm.cps.Subscribe(ctx)
 	defer stop()
 	for {
 		select {
@@ -48,7 +48,7 @@ func (sm *streamManager) run(ctx context.Context) {
 }
 
 func (sm *streamManager) sendComment(comment *domain.Comment) error {
-	return sm.ps.PublishComment(context.Background(), comment)
+	return sm.cps.Publish(context.Background(), comment)
 }
 
 func (sm *streamManager) connectToStream(eventID uuid.UUID) *client {

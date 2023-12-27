@@ -2,17 +2,17 @@ package domain
 
 import "context"
 
-type PubSub interface {
-	PublishComment(context.Context, *Comment) error
-	SubscribeComment(context.Context) (sub <-chan Message[Comment], stop func())
+type PubSub[T StreamObject] interface {
+	Publish(context.Context, T) error
+	Subscribe(context.Context) (sub <-chan Message[T], stop func())
 }
 
 type Message[T any] struct {
-	Msg *T
+	Msg T
 	Err error
 }
 
-func (m Message[T]) SetMsg(msg *T) Message[T] {
+func (m Message[T]) SetMsg(msg T) Message[T] {
 	m.Msg = msg
 	return m
 }

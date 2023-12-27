@@ -10,8 +10,8 @@ import (
 )
 
 func TestPubSub_Comment(t *testing.T) {
-	p := NewPubsub()
-	err := p.PublishComment(context.Background(), &domain.Comment{
+	p := NewPubsub[*domain.Comment]()
+	err := p.Publish(context.Background(), &domain.Comment{
 		ID:        uuid.New(),
 		UserID:    "user-id",
 		EventID:   uuid.New(),
@@ -24,14 +24,14 @@ func TestPubSub_Comment(t *testing.T) {
 }
 
 func TestPubSub_Comment_Concurrency(t *testing.T) {
-	p := NewPubsub()
+	p := NewPubsub[*domain.Comment]()
 
 	t.Run("publish", func(t *testing.T) {
 		t.Parallel()
 		// wait for subscribe
 		time.Sleep(1 * time.Second)
 		for i := 0; i < 1000; i++ {
-			err := p.PublishComment(context.Background(), &domain.Comment{
+			err := p.Publish(context.Background(), &domain.Comment{
 				ID:        uuid.New(),
 				UserID:    "user-id",
 				EventID:   uuid.New(),
@@ -48,7 +48,7 @@ func TestPubSub_Comment_Concurrency(t *testing.T) {
 		t.Parallel()
 		ctx, cancle := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancle()
-		ch, _ := p.SubscribeComment(ctx)
+		ch, _ := p.Subscribe(ctx)
 		var count int
 		for m := range ch {
 			if m.Err != nil {

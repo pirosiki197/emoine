@@ -9,15 +9,15 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type Pubsub struct {
+type Pubsub[T domain.StreamObject] struct {
 	rdb *redis.Client
 }
 
-func NewPubsub() *Pubsub {
+func NewPubsub[T domain.StreamObject]() *Pubsub[T] {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: "redis:6379",
 	})
-	return &Pubsub{
+	return &Pubsub[T]{
 		rdb: rdb,
 	}
 }
@@ -26,22 +26,25 @@ const (
 	CommentChannel = "comments"
 )
 
-func (p *Pubsub) PublishComment(ctx context.Context, c *domain.Comment) error {
+func (p *Pubsub[T]) Publish(ctx context.Context, c T) error {
 	b, err := json.Marshal(c)
 	if err != nil {
 		return err
 	}
-	return p.rdb.Publish(ctx, CommentChannel, b).Err()
+	// switch case
+	return p.rdb.Publish(ctx, c.Type().String(), b).Err()
 }
 
-// SubscribeComment returns a channel that receives comments.
+// Subscribe returns a channel that receives comments.
 // The channel is closed when the close function is called.
 // When ctx is canceled, the channel is closed, so you don't need to call the close function.
 //
 // If an error occurs, the error is set to the Err field of the Message and keep receiving.
-func (p *Pubsub) SubscribeComment(ctx context.Context) (sub <-chan domain.Message[domain.Comment], stop func()) {
-	pubsub := p.rdb.Subscribe(ctx, CommentChannel)
-	ch := make(chan domain.Message[domain.Comment])
+func (p *Pubsub[T]) Subscribe(ctx context.Context) (sub <-chan domain.Message[T], stop func()) {
+	// switch channel
+	var t T
+	pubsub := p.rdb.Subscribe(ctx, t.Type().String())
+	ch := make(chan domain.Message[T])
 
 	stop = sync.OnceFunc(func() {
 		close(ch)
@@ -58,17 +61,17 @@ func (p *Pubsub) SubscribeComment(ctx context.Context) (sub <-chan domain.Messag
 	// start goroutine to receive comments
 	go func() {
 		for c := range redisCh {
-			var msg domain.Message[domain.Comment]
-			comment := &domain.Comment{}
+			var msg domain.Message[T]
+			var value T
 
-			err := json.Unmarshal([]byte(c.Payload), comment)
+			err := json.Unmarshal([]byte(c.Payload), value)
 			if err != nil {
 				ch <- msg.SetErr(err)
 				continue
 			}
 
 			select {
-			case ch <- msg.SetMsg(comment):
+			case ch <- msg.SetMsg(value):
 			case <-ctx.Done():
 				stop()
 				return

@@ -29,7 +29,7 @@ func NewHandlre(repo domain.Repository) *handler {
 	}
 
 	sm := &streamManager{
-		ps: pubsub.NewPubsub(),
+		cps: pubsub.NewPubsub[*domain.Comment](),
 	}
 	go sm.run(context.Background())
 

@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,10 +17,12 @@ type Event struct {
 	EndAt   time.Time `json:"end_at,omitzero"`
 }
 
-type Comment struct {
-	ID        uuid.UUID `json:"id"`
-	UserID    string    `json:"user_id"`
-	EventID   uuid.UUID `json:"event_id"`
-	Text      string    `json:"text"`
-	CreatedAt time.Time `json:"created_at"`
+func (e *Event) Validate() error {
+	if e.Title == "" {
+		return errors.New("title is required")
+	}
+	if e.StartAt.IsZero() {
+		return errors.New("start_at is required")
+	}
+	return nil
 }
