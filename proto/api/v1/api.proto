@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 service APIService {
   rpc CreateEvent(CreateEventRequest) returns (CreateEventResponse);
   rpc GetEvents(GetEventsRequest) returns (GetEventsResponse);
+  rpc GetEvent(GetEventRequest) returns (GetEventResponse);
 
   rpc SendComment(SendCommentRequest) returns (SendCommentResponse);
   rpc GetComments(GetCommentsRequest) returns (GetCommentsResponse);
@@ -29,6 +30,14 @@ message GetEventsRequest {}
 
 message GetEventsResponse {
   repeated Event events = 1;
+}
+
+message GetEventRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetEventResponse {
+  Event event = 1;
 }
 
 message SendCommentRequest {

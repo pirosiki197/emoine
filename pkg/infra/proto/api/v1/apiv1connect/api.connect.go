@@ -37,6 +37,8 @@ const (
 	APIServiceCreateEventProcedure = "/api.v1.APIService/CreateEvent"
 	// APIServiceGetEventsProcedure is the fully-qualified name of the APIService's GetEvents RPC.
 	APIServiceGetEventsProcedure = "/api.v1.APIService/GetEvents"
+	// APIServiceGetEventProcedure is the fully-qualified name of the APIService's GetEvent RPC.
+	APIServiceGetEventProcedure = "/api.v1.APIService/GetEvent"
 	// APIServiceSendCommentProcedure is the fully-qualified name of the APIService's SendComment RPC.
 	APIServiceSendCommentProcedure = "/api.v1.APIService/SendComment"
 	// APIServiceGetCommentsProcedure is the fully-qualified name of the APIService's GetComments RPC.
@@ -51,6 +53,7 @@ var (
 	aPIServiceServiceDescriptor               = v1.File_api_v1_api_proto.Services().ByName("APIService")
 	aPIServiceCreateEventMethodDescriptor     = aPIServiceServiceDescriptor.Methods().ByName("CreateEvent")
 	aPIServiceGetEventsMethodDescriptor       = aPIServiceServiceDescriptor.Methods().ByName("GetEvents")
+	aPIServiceGetEventMethodDescriptor        = aPIServiceServiceDescriptor.Methods().ByName("GetEvent")
 	aPIServiceSendCommentMethodDescriptor     = aPIServiceServiceDescriptor.Methods().ByName("SendComment")
 	aPIServiceGetCommentsMethodDescriptor     = aPIServiceServiceDescriptor.Methods().ByName("GetComments")
 	aPIServiceConnectToStreamMethodDescriptor = aPIServiceServiceDescriptor.Methods().ByName("ConnectToStream")
@@ -60,6 +63,7 @@ var (
 type APIServiceClient interface {
 	CreateEvent(context.Context, *connect.Request[v1.CreateEventRequest]) (*connect.Response[v1.CreateEventResponse], error)
 	GetEvents(context.Context, *connect.Request[v1.GetEventsRequest]) (*connect.Response[v1.GetEventsResponse], error)
+	GetEvent(context.Context, *connect.Request[v1.GetEventRequest]) (*connect.Response[v1.GetEventResponse], error)
 	SendComment(context.Context, *connect.Request[v1.SendCommentRequest]) (*connect.Response[v1.SendCommentResponse], error)
 	GetComments(context.Context, *connect.Request[v1.GetCommentsRequest]) (*connect.Response[v1.GetCommentsResponse], error)
 	ConnectToStream(context.Context, *connect.Request[v1.ConnectToStreamRequest]) (*connect.ServerStreamForClient[v1.ConnectToStreamResponse], error)
@@ -87,6 +91,12 @@ func NewAPIServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(aPIServiceGetEventsMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		getEvent: connect.NewClient[v1.GetEventRequest, v1.GetEventResponse](
+			httpClient,
+			baseURL+APIServiceGetEventProcedure,
+			connect.WithSchema(aPIServiceGetEventMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 		sendComment: connect.NewClient[v1.SendCommentRequest, v1.SendCommentResponse](
 			httpClient,
 			baseURL+APIServiceSendCommentProcedure,
@@ -112,6 +122,7 @@ func NewAPIServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 type aPIServiceClient struct {
 	createEvent     *connect.Client[v1.CreateEventRequest, v1.CreateEventResponse]
 	getEvents       *connect.Client[v1.GetEventsRequest, v1.GetEventsResponse]
+	getEvent        *connect.Client[v1.GetEventRequest, v1.GetEventResponse]
 	sendComment     *connect.Client[v1.SendCommentRequest, v1.SendCommentResponse]
 	getComments     *connect.Client[v1.GetCommentsRequest, v1.GetCommentsResponse]
 	connectToStream *connect.Client[v1.ConnectToStreamRequest, v1.ConnectToStreamResponse]
@@ -125,6 +136,11 @@ func (c *aPIServiceClient) CreateEvent(ctx context.Context, req *connect.Request
 // GetEvents calls api.v1.APIService.GetEvents.
 func (c *aPIServiceClient) GetEvents(ctx context.Context, req *connect.Request[v1.GetEventsRequest]) (*connect.Response[v1.GetEventsResponse], error) {
 	return c.getEvents.CallUnary(ctx, req)
+}
+
+// GetEvent calls api.v1.APIService.GetEvent.
+func (c *aPIServiceClient) GetEvent(ctx context.Context, req *connect.Request[v1.GetEventRequest]) (*connect.Response[v1.GetEventResponse], error) {
+	return c.getEvent.CallUnary(ctx, req)
 }
 
 // SendComment calls api.v1.APIService.SendComment.
@@ -146,6 +162,7 @@ func (c *aPIServiceClient) ConnectToStream(ctx context.Context, req *connect.Req
 type APIServiceHandler interface {
 	CreateEvent(context.Context, *connect.Request[v1.CreateEventRequest]) (*connect.Response[v1.CreateEventResponse], error)
 	GetEvents(context.Context, *connect.Request[v1.GetEventsRequest]) (*connect.Response[v1.GetEventsResponse], error)
+	GetEvent(context.Context, *connect.Request[v1.GetEventRequest]) (*connect.Response[v1.GetEventResponse], error)
 	SendComment(context.Context, *connect.Request[v1.SendCommentRequest]) (*connect.Response[v1.SendCommentResponse], error)
 	GetComments(context.Context, *connect.Request[v1.GetCommentsRequest]) (*connect.Response[v1.GetCommentsResponse], error)
 	ConnectToStream(context.Context, *connect.Request[v1.ConnectToStreamRequest], *connect.ServerStream[v1.ConnectToStreamResponse]) error
@@ -167,6 +184,12 @@ func NewAPIServiceHandler(svc APIServiceHandler, opts ...connect.HandlerOption) 
 		APIServiceGetEventsProcedure,
 		svc.GetEvents,
 		connect.WithSchema(aPIServiceGetEventsMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	aPIServiceGetEventHandler := connect.NewUnaryHandler(
+		APIServiceGetEventProcedure,
+		svc.GetEvent,
+		connect.WithSchema(aPIServiceGetEventMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	aPIServiceSendCommentHandler := connect.NewUnaryHandler(
@@ -193,6 +216,8 @@ func NewAPIServiceHandler(svc APIServiceHandler, opts ...connect.HandlerOption) 
 			aPIServiceCreateEventHandler.ServeHTTP(w, r)
 		case APIServiceGetEventsProcedure:
 			aPIServiceGetEventsHandler.ServeHTTP(w, r)
+		case APIServiceGetEventProcedure:
+			aPIServiceGetEventHandler.ServeHTTP(w, r)
 		case APIServiceSendCommentProcedure:
 			aPIServiceSendCommentHandler.ServeHTTP(w, r)
 		case APIServiceGetCommentsProcedure:
@@ -214,6 +239,10 @@ func (UnimplementedAPIServiceHandler) CreateEvent(context.Context, *connect.Requ
 
 func (UnimplementedAPIServiceHandler) GetEvents(context.Context, *connect.Request[v1.GetEventsRequest]) (*connect.Response[v1.GetEventsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.APIService.GetEvents is not implemented"))
+}
+
+func (UnimplementedAPIServiceHandler) GetEvent(context.Context, *connect.Request[v1.GetEventRequest]) (*connect.Response[v1.GetEventResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("api.v1.APIService.GetEvent is not implemented"))
 }
 
 func (UnimplementedAPIServiceHandler) SendComment(context.Context, *connect.Request[v1.SendCommentRequest]) (*connect.Response[v1.SendCommentResponse], error) {
