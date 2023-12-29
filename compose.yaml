@@ -3,10 +3,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - 8080:8080
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.server.rule=Host(`emoine.trapti.tech`)"
-#      - "traefik.http.routers.server.middlewares=forward-auth"
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.server.rule=Host(`emoine.trapti.tech`)'
+      #- "traefik.http.routers.server.middlewares=forward-auth"
 
   db:
     image: mysql:latest
@@ -14,6 +16,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: example
       MYSQL_DATABASE: emoine
+    ports:
+      - 3306:3306
 
   adminer:
     image: adminer
@@ -35,7 +39,6 @@ services:
       - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-  
 #  forward-auth:
 #    image: ghcr.io/jordemort/traefik-forward-auth:latest
 #    environment:
