@@ -22,7 +22,7 @@ type handler struct {
 	sm *streamManager
 }
 
-func NewHandlre(repo domain.Repository) *handler {
+func NewHandler(repo domain.Repository) *handler {
 	v, err := protovalidate.New()
 	if err != nil {
 		panic(err)
@@ -49,11 +49,15 @@ func (h *handler) CreateEvent(
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
 
-	e := &domain.Event{
-		ID:      uuid.New(),
+	event := &apiv1.Event{
+		Id:      uuid.New().String(),
 		Title:   req.Msg.Title,
-		StartAt: req.Msg.StartAt.AsTime(),
-		EndAt:   req.Msg.EndAt.AsTime(),
+		StartAt: req.Msg.StartAt,
+		EndAt:   req.Msg.EndAt,
+	}
+	e := pbconv.ToEventModel(event)
+	if err := e.Validate(); err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
 
 	if err := h.repo.CreateEvent(ctx, e); err != nil {
@@ -80,6 +84,29 @@ func (h *handler) GetEvents(
 		Events: lo.Map(events, func(e domain.Event, _ int) *apiv1.Event {
 			return pbconv.FromEventModel(&e)
 		}),
+	})
+
+	return res, nil
+}
+
+func (h *handler) GetEvent(
+	ctx context.Context,
+	req *connect.Request[apiv1.GetEventRequest],
+) (*connect.Response[apiv1.GetEventResponse], error) {
+	if err := h.validator.Validate(req.Msg); err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+
+	e, err := h.repo.GetEvent(ctx, req.Msg.Id)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if e == nil {
+		return nil, connect.NewError(connect.CodeNotFound, nil)
+	}
+
+	res := connect.NewResponse(&apiv1.GetEventResponse{
+		Event: pbconv.FromEventModel(e),
 	})
 
 	return res, nil
