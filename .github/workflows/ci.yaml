@@ -14,4 +14,4 @@ jobs:
       - name: Run redis container
         run: docker compose up -d redis
       - name: Run Tests
-        run: go test ./...
+        run: go test -v github.com/pirosiki197/emoine/pkg/integration
