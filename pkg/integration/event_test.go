@@ -64,3 +64,39 @@ func TestCreate_GetEvents(t *testing.T) {
 		}
 	})
 }
+
+func TestCreate_GetEvent(t *testing.T) {
+	s := NewAPIServer(t)
+	t.Cleanup(s.Close)
+	client := s.Client()
+	ctx := context.Background()
+
+	event := &apiv1.Event{
+		Title:   "test event 1",
+		StartAt: timestamppb.New(time.Now()),
+	}
+
+	t.Run("create event", func(t *testing.T) {
+		req := connect.NewRequest(&apiv1.CreateEventRequest{
+			Title:   event.Title,
+			StartAt: event.StartAt,
+			EndAt:   event.EndAt,
+		})
+		res, err := client.CreateEvent(ctx, req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		event.Id = res.Msg.Id
+	})
+
+	t.Run("get event", func(t *testing.T) {
+		req := connect.NewRequest(&apiv1.GetEventRequest{Id: event.Id})
+		res, err := client.GetEvent(ctx, req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !EventEqual(event, res.Msg.Event) {
+			t.Errorf("want %v, got %v", event, res.Msg.Event)
+		}
+	})
+}

@@ -19,7 +19,7 @@ func NewAPIServer(t *testing.T) *APIServer {
 	db := NewDB(t)
 	t.Cleanup(db.Cleanup)
 	repo := repository.NewRepository(db.BunDB())
-	_, handler := apiv1connect.NewAPIServiceHandler(handler.NewHandler(repo))
+	_, handler := apiv1connect.NewAPIServiceHandler(handler.NewHandler(repo, db.Redis()))
 	srv := httptest.NewUnstartedServer(handler)
 	srv.EnableHTTP2 = true
 	srv.StartTLS()
