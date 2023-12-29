@@ -1,6 +1,11 @@
 package dbmodel
 
-import "github.com/pirosiki197/emoine/pkg/domain"
+import (
+	"database/sql"
+
+	"github.com/pirosiki197/emoine/pkg/domain"
+	"github.com/samber/lo"
+)
 
 func FromDomainEvent(e *domain.Event) *Event {
 	if e == nil {
@@ -10,7 +15,7 @@ func FromDomainEvent(e *domain.Event) *Event {
 		ID:      e.ID,
 		Title:   e.Title,
 		StartAt: e.StartAt,
-		EndAt:   e.EndAt,
+		EndAt:   lo.Ternary(e.EndAt.IsZero(), sql.NullTime{}, sql.NullTime{Time: e.EndAt, Valid: true}),
 	}
 }
 
@@ -22,7 +27,7 @@ func (e *Event) ToDomain() *domain.Event {
 		ID:      e.ID,
 		Title:   e.Title,
 		StartAt: e.StartAt,
-		EndAt:   e.EndAt,
+		EndAt:   e.EndAt.Time,
 	}
 }
 

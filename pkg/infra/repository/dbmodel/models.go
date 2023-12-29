@@ -1,6 +1,7 @@
 package dbmodel
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -10,10 +11,10 @@ import (
 type Event struct {
 	bun.BaseModel `bun:"events"`
 
-	ID      uuid.UUID `bun:",pk,type:varchar(36)"`
-	Title   string    `bun:",notnull,nullzero"`
-	StartAt time.Time `bun:",notnull,nullzero,default:current_timestamp"`
-	EndAt   time.Time `bun:",nullzero"`
+	ID      uuid.UUID    `bun:",pk,type:varchar(36)"`
+	Title   string       `bun:",notnull,nullzero"`
+	StartAt time.Time    `bun:",notnull,nullzero,default:current_timestamp"`
+	EndAt   sql.NullTime `bun:",nullzero"`
 }
 
 type Comment struct {
