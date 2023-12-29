@@ -8,12 +8,14 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/pirosiki197/emoine/pkg/infra/repository/dbmodel"
+	"github.com/redis/go-redis/v9"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/mysqldialect"
 )
 
 type DB struct {
-	db *bun.DB
+	db  *bun.DB
+	rdb *redis.Client
 }
 
 func NewDB(t *testing.T) *DB {
@@ -36,8 +38,10 @@ func NewDB(t *testing.T) *DB {
 	if err != nil {
 		t.Fatal(err)
 	}
+	rdb := connectRedis(t)
 	return &DB{
-		db: db,
+		db:  db,
+		rdb: rdb,
 	}
 }
 
@@ -50,6 +54,17 @@ func connectDB(conf *mysql.Config) (db *bun.DB, err error) {
 		return nil, err
 	}
 	return bun.NewDB(sqldb, mysqldialect.New()), nil
+}
+
+func connectRedis(t *testing.T) *redis.Client {
+	t.Helper()
+	rdb := redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+	if err := rdb.Ping(context.Background()).Err(); err != nil {
+		t.Fatal(err)
+	}
+	return rdb
 }
 
 func (d *DB) Cleanup() {
@@ -66,4 +81,8 @@ func (d *DB) Cleanup() {
 
 func (d *DB) BunDB() *bun.DB {
 	return d.db
+}
+
+func (d *DB) Redis() *redis.Client {
+	return d.rdb
 }

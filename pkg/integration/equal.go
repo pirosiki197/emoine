@@ -23,6 +23,25 @@ func EventEqual(a, b *apiv1.Event) bool {
 	return true
 }
 
+func CommentEqual(a, b *apiv1.Comment) bool {
+	if a.Id != b.Id {
+		return false
+	}
+	if a.UserId != b.UserId {
+		return false
+	}
+	if a.EventId != b.EventId {
+		return false
+	}
+	if a.Text != b.Text {
+		return false
+	}
+	if !TimestamppbNeallyEqual(a.CreatedAt, b.CreatedAt) {
+		return false
+	}
+	return true
+}
+
 func TimestamppbNeallyEqual(a, b *timestamppb.Timestamp) bool {
 	return a.AsTime().Sub(b.AsTime()).Abs() < 1*time.Second
 }
