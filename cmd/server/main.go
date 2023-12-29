@@ -20,13 +20,13 @@ import (
 )
 
 func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+	l := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		AddSource: true,
 	}))
-	slog.SetDefault(logger)
+	slog.SetDefault(l)
 
-	repo := repository.NewRepository(ConnectDB())
-	handler := handler.NewHandlre(repo)
+	repo := repository.NewRepository(ConnectBunDB())
+	handler := handler.NewHandler(repo)
 
 	mux := http.NewServeMux()
 	mux.Handle(apiv1connect.NewAPIServiceHandler(handler))
@@ -39,7 +39,7 @@ func main() {
 	))
 }
 
-func ConnectDB() *bun.DB {
+func ConnectBunDB() *bun.DB {
 	jst, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		panic(err)
@@ -54,9 +54,19 @@ func ConnectDB() *bun.DB {
 		AllowNativePasswords: true,
 		ParseTime:            true,
 	}
-	sqldb, err := sql.Open("mysql", conf.FormatDSN())
-	if err != nil {
-		panic(err)
+	var sqldb *sql.DB
+	for i := 0; i < 10; i++ {
+		sqldb, err = sql.Open("mysql", conf.FormatDSN())
+		if err != nil {
+			time.Sleep(5 * time.Second)
+			continue
+		}
+		err = sqldb.Ping()
+		if err != nil {
+			time.Sleep(5 * time.Second)
+			continue
+		}
+		return bun.NewDB(sqldb, mysqldialect.New())
 	}
-	return bun.NewDB(sqldb, mysqldialect.New())
+	panic(err)
 }
