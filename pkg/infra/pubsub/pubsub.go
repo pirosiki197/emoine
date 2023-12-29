@@ -9,16 +9,17 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// TODO: channelの名前を持つ
 type Pubsub[T domain.StreamObject] struct {
-	rdb *redis.Client
+	rdb         *redis.Client
+	channelName string
 }
 
-func NewPubsub[T domain.StreamObject]() *Pubsub[T] {
-	rdb := redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
-	})
+func NewPubsub[T domain.StreamObject](rdb *redis.Client) *Pubsub[T] {
+	var object T
 	return &Pubsub[T]{
-		rdb: rdb,
+		rdb:         rdb,
+		channelName: object.Type().String(),
 	}
 }
 
@@ -32,7 +33,7 @@ func (p *Pubsub[T]) Publish(ctx context.Context, c T) error {
 		return err
 	}
 	// switch case
-	return p.rdb.Publish(ctx, c.Type().String(), b).Err()
+	return p.rdb.Publish(ctx, p.channelName, b).Err()
 }
 
 // Subscribe returns a channel that receives comments.
@@ -42,8 +43,7 @@ func (p *Pubsub[T]) Publish(ctx context.Context, c T) error {
 // If an error occurs, the error is set to the Err field of the Message and keep receiving.
 func (p *Pubsub[T]) Subscribe(ctx context.Context) (sub <-chan domain.Message[T], stop func()) {
 	// switch channel
-	var t T
-	pubsub := p.rdb.Subscribe(ctx, t.Type().String())
+	pubsub := p.rdb.Subscribe(ctx, p.channelName)
 	ch := make(chan domain.Message[T])
 
 	stop = sync.OnceFunc(func() {
@@ -62,7 +62,7 @@ func (p *Pubsub[T]) Subscribe(ctx context.Context) (sub <-chan domain.Message[T]
 	go func() {
 		for c := range redisCh {
 			var msg domain.Message[T]
-			var value T
+			value := new(T)
 
 			err := json.Unmarshal([]byte(c.Payload), value)
 			if err != nil {
@@ -71,7 +71,7 @@ func (p *Pubsub[T]) Subscribe(ctx context.Context) (sub <-chan domain.Message[T]
 			}
 
 			select {
-			case ch <- msg.SetMsg(value):
+			case ch <- msg.SetMsg(*value):
 			case <-ctx.Done():
 				stop()
 				return
