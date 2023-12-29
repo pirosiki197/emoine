@@ -12,6 +12,7 @@ import (
 	apiv1 "github.com/pirosiki197/emoine/pkg/infra/proto/api/v1"
 	"github.com/pirosiki197/emoine/pkg/infra/proto/pbconv"
 	"github.com/pirosiki197/emoine/pkg/infra/pubsub"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 )
 
@@ -22,14 +23,14 @@ type handler struct {
 	sm *streamManager
 }
 
-func NewHandler(repo domain.Repository) *handler {
+func NewHandler(repo domain.Repository, rdb *redis.Client) *handler {
 	v, err := protovalidate.New()
 	if err != nil {
 		panic(err)
 	}
 
 	sm := &streamManager{
-		cps: pubsub.NewPubsub[*domain.Comment](),
+		cps: pubsub.NewPubsub[*domain.Comment](rdb),
 	}
 	go sm.run(context.Background())
 

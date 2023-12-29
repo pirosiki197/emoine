@@ -12,6 +12,7 @@ import (
 	"github.com/pirosiki197/emoine/pkg/handler"
 	"github.com/pirosiki197/emoine/pkg/infra/proto/api/v1/apiv1connect"
 	"github.com/pirosiki197/emoine/pkg/infra/repository"
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/cors"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/mysqldialect"
@@ -26,7 +27,8 @@ func main() {
 	slog.SetDefault(l)
 
 	repo := repository.NewRepository(ConnectBunDB())
-	handler := handler.NewHandler(repo)
+	rdb := ConnectRedis()
+	handler := handler.NewHandler(repo, rdb)
 
 	mux := http.NewServeMux()
 	mux.Handle(apiv1connect.NewAPIServiceHandler(handler))
@@ -54,19 +56,33 @@ func ConnectBunDB() *bun.DB {
 		AllowNativePasswords: true,
 		ParseTime:            true,
 	}
-	var sqldb *sql.DB
 	for i := 0; i < 10; i++ {
-		sqldb, err = sql.Open("mysql", conf.FormatDSN())
+		db, err := connectDB(&conf)
 		if err != nil {
+			slog.Warn("failed to connect to db", slog.String("err", err.Error()), slog.Int("retry", i))
 			time.Sleep(5 * time.Second)
 			continue
 		}
-		err = sqldb.Ping()
-		if err != nil {
-			time.Sleep(5 * time.Second)
-			continue
-		}
-		return bun.NewDB(sqldb, mysqldialect.New())
+		return db
 	}
 	panic(err)
+}
+
+func connectDB(conf *mysql.Config) (db *bun.DB, err error) {
+	sqldb, err := sql.Open("mysql", conf.FormatDSN())
+	if err != nil {
+		return nil, err
+	}
+	if err := sqldb.Ping(); err != nil {
+		return nil, err
+	}
+	return bun.NewDB(sqldb, mysqldialect.New()), nil
+}
+
+func ConnectRedis() *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr:     "redis:6379",
+		Password: "",
+		DB:       0,
+	})
 }

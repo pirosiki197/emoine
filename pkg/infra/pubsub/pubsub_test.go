@@ -10,7 +10,7 @@ import (
 )
 
 func TestPubSub_Comment(t *testing.T) {
-	p := NewPubsub[*domain.Comment]()
+	p := NewPubsub[*domain.Comment](nil)
 	err := p.Publish(context.Background(), &domain.Comment{
 		ID:        uuid.New(),
 		UserID:    "user-id",
@@ -24,7 +24,7 @@ func TestPubSub_Comment(t *testing.T) {
 }
 
 func TestPubSub_Comment_Concurrency(t *testing.T) {
-	p := NewPubsub[*domain.Comment]()
+	p := NewPubsub[*domain.Comment](nil)
 
 	t.Run("publish", func(t *testing.T) {
 		t.Parallel()
