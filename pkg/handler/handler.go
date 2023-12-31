@@ -183,12 +183,6 @@ func (h *handler) ConnectToStream(
 		return connect.NewError(connect.CodeNotFound, nil)
 	}
 
-	stream.Send(&apiv1.ConnectToStreamResponse{
-		EventOrComment: &apiv1.ConnectToStreamResponse_Event{
-			Event: pbconv.FromEventModel(e),
-		},
-	})
-
 	client := h.sm.connectToStream(e.ID)
 	defer h.sm.disconnectFromStream(client)
 
@@ -196,9 +190,7 @@ func (h *handler) ConnectToStream(
 		select {
 		case msg := <-client.receive():
 			stream.Send(&apiv1.ConnectToStreamResponse{
-				EventOrComment: &apiv1.ConnectToStreamResponse_Comment{
-					Comment: msg.comment,
-				},
+				Comment: msg.comment,
 			})
 		case <-ctx.Done():
 			return nil

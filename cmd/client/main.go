@@ -167,11 +167,9 @@ func connectToStream(c apiv1connect.APIServiceClient) {
 	for stream.Receive() {
 		msg := stream.Msg()
 
-		if e := msg.GetEvent(); e != nil {
-			fmt.Printf("event: %s\n", e.Title)
-		}
-		if c := msg.GetComment(); c != nil {
-			fmt.Printf("comment: %s\n", c.Text)
+		c := msg.GetComment()
+		if c != nil {
+			fmt.Printf("%s: %s\n", c.UserId, c.Text)
 		}
 	}
 	if err := stream.Err(); err != nil {

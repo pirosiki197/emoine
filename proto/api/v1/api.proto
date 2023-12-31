@@ -63,10 +63,7 @@ message ConnectToStreamRequest {
 }
 
 message ConnectToStreamResponse {
-  oneof event_or_comment {
-    Event event = 1;
-    Comment comment = 2;
-  }
+  Comment comment = 1;
 }
 
 message Event {

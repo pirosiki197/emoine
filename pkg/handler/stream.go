@@ -27,7 +27,7 @@ func (sm *streamManager) run(ctx context.Context) {
 		select {
 		case msg := <-sub:
 			if msg.Err != nil {
-				slog.Error("failed to receive comment", slog.Any("err", msg.Err))
+				slog.Error("failed to receive comment", slog.String("err", msg.Err.Error()))
 				continue
 			}
 
@@ -69,9 +69,7 @@ func (sm *streamManager) disconnectFromStream(c *client) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 
-	sm.clients = slices.DeleteFunc(sm.clients, func(d *client) bool {
-		return d == c
-	})
+	sm.clients = slices.DeleteFunc(sm.clients, func(d *client) bool { return d == c })
 }
 
 type client struct {
